@@ -18,7 +18,7 @@ void endTimer()
 
 void printTimeDiff()
 {
-      std::cout<<"Delay : "
-      <<std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count()
-      <<std::endl;
+      std::cout<<"Delay: "
+      <<std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count()
+      <<" us"<<std::endl;
 }

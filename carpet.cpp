@@ -26,40 +26,134 @@ brown	yellow	return
 
 #include <string>
 #include <vector>
-
 #include <iostream>
-#include "mj_timer.h"
 
+#include <list>
 using namespace std;
 
-vector<int> findDivisor(int num)
+bool checkYellowWidthHeight(int brown_grid_count, int yellow_width, int yellow_height)
 {
-	vector<int> retVec;
+	if (yellow_width >= yellow_height)
+	{
+		return brown_grid_count == (yellow_width * 2 + yellow_height * 2 + 4) ? true : false;
+	}
+
+	return false;
+}
+
+list<int> findDivisor(int num)
+{
+	if(num == 1)
+	{
+		return list<int>{1};
+	}
+
+	list<int> retList;
 
 	int copyNum = num;
-	
-	retVec.push_back(1);
+
+	retList.push_back(1);
 
 	for (int i = 2; i < copyNum; ++i)
 	{
 		if (copyNum % i == 0)
 		{
 			copyNum = copyNum / i;
-			
-			retVec.push_back(i);
+
+			retList.push_back(i);
 			i = 1;
 		}
 	}
-	retVec.push_back(copyNum);
-	
+	retList.push_back(copyNum);
 
-	return retVec;
+	return retList;
+}
+
+
+int multiplyAllListElement(list<int>& l)
+{
+	int sum = 1;
+	for(auto& i : l)
+	{
+		sum *= i;
+	}
+	return sum;
+}
+
+bool targetFound = true;
+int m_brown_count;
+pair<int,int> result;
+
+void fullSearch(list<int> &choosen, list<int> &choose)
+{
+	int choosenMultiplyValue = multiplyAllListElement(choosen);
+	int chooseMultiplyValue = multiplyAllListElement(choose);
+		
+	if(choosenMultiplyValue <= chooseMultiplyValue)
+	{
+		if(checkYellowWidthHeight(m_brown_count,chooseMultiplyValue,choosenMultiplyValue))
+		{
+			result.first = chooseMultiplyValue + 2;
+			result.second = choosenMultiplyValue + 2;
+			targetFound = true;
+			return;
+		}
+	}
+	else
+	{
+		return;
+	}
+	
+	size_t sizeOfChoose = choose.size();
+	list<int>::iterator it;
+	for (size_t i = 0; i < sizeOfChoose && !targetFound; ++i)
+	{
+		it = choose.begin();
+		std::advance(it, i);
+		int selectedInteger = *it;
+
+		choosen.push_back(selectedInteger);
+
+		list<int> newChoose(choose.begin(), choose.end());
+		auto it2 = newChoose.begin();
+		std::advance(it2, i);
+		newChoose.erase(it2);
+
+		fullSearch(choosen, newChoose);
+		choosen.pop_back();
+	}
 }
 
 vector<int> solution(int brown, int yellow)
 {
 	vector<int> answer;
+
+	m_brown_count = brown;
+	targetFound = false;
+	result.first = 0;
+	result.second = 0;
+
+	auto yellowDivisorList = findDivisor(yellow);
+	list<int> choosenList;
+	fullSearch(choosenList,yellowDivisorList);
+	
+	if(targetFound)
+	{
+		 answer.push_back(result.first);
+		 answer.push_back(result.second);		 
+	}
+
 	return answer;
+}
+
+void printList(list<int> &l)
+{
+	cout << "Print List : ";
+	for (auto &i : l)
+	{
+		cout << i << " ";
+	}
+	cout << endl;
 }
 
 void printVector(vector<int> &v)
@@ -72,28 +166,23 @@ void printVector(vector<int> &v)
 	cout << endl;
 }
 
+#include "mj_timer.h"
 int main(void)
 {
-	srand((unsigned int)time(nullptr));		
-	for (int i = 0; i < 10; i++)
-	{
-		int integer = rand() % 101;
-		auto divsors = findDivisor(integer);
-		cout<<"integer : "<<integer<<endl;
-		printVector(divsors);		
-	}
 
-#if 0
-    vector<std::pair<int,int>> testCases;
-    for(auto& testCase : testCases)
-    {        
-        startTimer();
-        auto res = solution(testCase.first,testCase.second);
-        endTimer();
-        printTimeDiff();
-        printVector(res);
-    }
-#endif
+	vector<std::pair<int, int>> testCases{
+		{10, 2},
+		{8, 1},
+		{24, 24},
+	};
+	for (auto &testCase : testCases)
+	{
+		startTimer();
+		auto res = solution(testCase.first, testCase.second);
+		endTimer();
+		printTimeDiff();
+		printVector(res);
+	}
 
 	return 0;
 }
