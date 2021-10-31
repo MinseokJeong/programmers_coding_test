@@ -33,46 +33,43 @@ using namespace std;
 
 class Ticket
 {
-  public:
-  string* origin_ariport;
-  string* destination_airport;  
-  
-  Ticket(string* org, string* dst)
-  {
-      origin_ariport = org;
-      destination_airport = dst;
-  }
+public:
+    string *origin_ariport;
+    string *destination_airport;
+
+    Ticket(string *org, string *dst)
+    {
+        origin_ariport = org;
+        destination_airport = dst;
+    }
 };
 
-bool isTicketPossibleOrder(Ticket& first, Ticket& second)
+bool isTicketPossibleOrder(Ticket &first, Ticket &second)
 {
-    if(first.destination_airport->compare(second.origin_ariport->c_str()) == 0)
+    if (first.destination_airport->compare(second.origin_ariport->c_str()) == 0)
     {
         return true;
     }
-    
-    return false;
+    ~return false;
 }
-
 
 vector<string> solution(vector<vector<string>> tickets)
 {
     vector<Ticket> ticketVector;
     ticketVector.reserve(tickets.size());
-        
-    //First make the ticket
-    for(auto& ticket : tickets)
+
+    // First make the ticket
+    for (auto &ticket : tickets)
     {
-        //To reduce the contruct time
-        ticketVector.emplace_back(&ticket[0],&ticket[1]);   
+        // To reduce the contruct time
+        ticketVector.emplace_back(&ticket[0], &ticket[1]);
     }
 
-    
     return vector<string>();
 }
 
 #include <iostream>
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 
     return 0;

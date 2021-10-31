@@ -78,77 +78,176 @@ rect_8.png
 using namespace std;
 enum DIRECTION
 {
-    up,
-    right,
-    left,
-    down,
-    none
+    dir_up,
+    dir_right,
+    dir_left,
+    dir_down,
+    dir_none
 };
+/*
+up/down left/right
+up,left
+up,right
+down,left
+down,right
+up,down
+left,right
+이런 조합들이 있음
+*/
+
+vector<DIRECTION> calculateNextPossibleDir(vector<vector<bool>> &grid, int x_pos, int y_pos)
+{
+    vector<DIRECTION> possibleDirections;
+    bool smallGridForCheck1[2][2];
+    bool smallGridForCheck2[2][2];
+
+    // up
+    if (grid[y_pos + 1][x_pos])
+    {
+        smallGridForCheck1[0][0] = grid[y_pos][x_pos - 1];
+        smallGridForCheck1[0][1] = grid[y_pos][x_pos];
+        smallGridForCheck1[1][0] = grid[y_pos + 1][x_pos - 1];
+        smallGridForCheck1[1][1] = grid[y_pos + 1][x_pos];
+
+        smallGridForCheck2[0][0] = grid[y_pos][x_pos];
+        smallGridForCheck2[0][1] = grid[y_pos][x_pos + 1];
+        smallGridForCheck2[1][0] = grid[y_pos + 1][x_pos];
+        smallGridForCheck2[1][1] = grid[y_pos + 1][x_pos + 1];
+
+        for (int i = 0; i < 2; ++i)
+        {
+            for (int j = 0; j < 2; ++j)
+            {
+                if (!(smallGridForCheck1[i][j] && smallGridForCheck2[i][j]))
+                {
+                    possibleDirections.push_back(DIRECTION::dir_up);
+                    j = 3;
+                    i = 3;
+                }
+            }
+        }
+    }
+
+    // down
+    if (grid[y_pos - 1][x_pos])
+    {
+        smallGridForCheck1[0][0] = grid[y_pos - 1][x_pos - 1];
+        smallGridForCheck1[0][1] = grid[y_pos - 1][x_pos];
+        smallGridForCheck1[1][0] = grid[y_pos][x_pos - 1];
+        smallGridForCheck1[1][1] = grid[y_pos][x_pos];
+
+        smallGridForCheck2[0][0] = grid[y_pos - 1][x_pos];
+        smallGridForCheck2[0][1] = grid[y_pos - 1][x_pos + 1];
+        smallGridForCheck2[1][0] = grid[y_pos][x_pos];
+        smallGridForCheck2[1][1] = grid[y_pos][x_pos + 1];
+
+        for (int i = 0; i < 2; ++i)
+        {
+            for (int j = 0; j < 2; ++j)
+            {
+                if (!(smallGridForCheck1[i][j] && smallGridForCheck2[i][j]))
+                {
+                    possibleDirections.push_back(DIRECTION::dir_down);
+                    j = 3;
+                    i = 3;
+                }
+            }
+        }
+    }
+
+    // right
+    if (grid[y_pos][x_pos + 1])
+    {
+        smallGridForCheck1[0][0] = grid[y_pos][x_pos];
+        smallGridForCheck1[0][1] = grid[y_pos][x_pos + 1];
+        smallGridForCheck1[1][0] = grid[y_pos + 1][x_pos];
+        smallGridForCheck1[1][1] = grid[y_pos + 1][x_pos + 1];
+
+        smallGridForCheck2[0][0] = grid[y_pos - 1][x_pos];
+        smallGridForCheck2[0][1] = grid[y_pos - 1][x_pos + 1];
+        smallGridForCheck2[1][0] = grid[y_pos][x_pos];
+        smallGridForCheck2[1][1] = grid[y_pos][x_pos + 1];
+
+        for (int i = 0; i < 2; ++i)
+        {
+            for (int j = 0; j < 2; ++j)
+            {
+                if (!(smallGridForCheck1[i][j] && smallGridForCheck2[i][j]))
+                {
+                    possibleDirections.push_back(DIRECTION::dir_right);
+                    j = 3;
+                    i = 3;
+                }
+            }
+        }
+    }
+
+    // left
+    if (grid[y_pos][x_pos - 1])
+    {
+        smallGridForCheck1[0][0] = grid[y_pos][x_pos - 1];
+        smallGridForCheck1[0][1] = grid[y_pos][x_pos];
+        smallGridForCheck1[1][0] = grid[y_pos + 1][x_pos - 1];
+        smallGridForCheck1[1][1] = grid[y_pos + 1][x_pos];
+
+        smallGridForCheck2[0][0] = grid[y_pos - 1][x_pos - 1];
+        smallGridForCheck2[0][1] = grid[y_pos - 1][x_pos];
+        smallGridForCheck2[1][0] = grid[y_pos][x_pos - 1];
+        smallGridForCheck2[1][1] = grid[y_pos][x_pos];
+
+        for (int i = 0; i < 2; ++i)
+        {
+            for (int j = 0; j < 2; ++j)
+            {
+                if (!(smallGridForCheck1[i][j] && smallGridForCheck2[i][j]))
+                {
+                    possibleDirections.push_back(DIRECTION::dir_left);
+                    j = 3;
+                    i = 3;
+                }
+            }
+        }
+    }
+
+    return possibleDirections;
+}
 
 DIRECTION getReverseDirection(DIRECTION direction)
 {
     switch (direction)
     {
-    case DIRECTION::up:
-        return DIRECTION::down;
-    case DIRECTION::right:
-        return DIRECTION::left;
-    case DIRECTION::left:
-        return DIRECTION::right;
-    case DIRECTION::down:
-        return DIRECTION::up;
-    case DIRECTION::none:
+    case DIRECTION::dir_up:
+        return DIRECTION::dir_down;
+    case DIRECTION::dir_right:
+        return DIRECTION::dir_left;
+    case DIRECTION::dir_left:
+        return DIRECTION::dir_right;
+    case DIRECTION::dir_down:
+        return DIRECTION::dir_up;
+    case DIRECTION::dir_none:
     default:
-        return DIRECTION::none;
+        return DIRECTION::dir_none;
         break;
     }
-}
-
-bool isPositionCanBeCandidate(bool **grid_2d, int grid_2d_row_size, int grid_2d_column_size, int pos_x, int pos_y)
-{
-    if (pos_x < 0 || pos_x >= grid_2d_row_size)
-    {
-        return false;
-    }
-
-    if (pos_y < 0 || pos_y >= grid_2d_column_size)
-    {
-        return false;
-    }
-
-    if (grid_2d[pos_y][pos_x] == false)
-    {
-        return false;
-    }
-
-    if ((pos_y > 0 && pos_y < grid_2d_column_size - 1) && (pos_x > 0 && pos_x < grid_2d_row_size - 1))
-    {
-        if (grid_2d[pos_y + 1][pos_x - 1] && grid_2d[pos_y + 1][pos_x] && grid_2d[pos_y + 1][pos_x + 1] 
-        && grid_2d[pos_y][pos_x - 1] && grid_2d[pos_y][pos_x + 1] 
-        && grid_2d[pos_y - 1][pos_x - 1] && grid_2d[pos_y - 1][pos_x] && grid_2d[pos_y-1][pos_x + 1])
-            return false;
-    }
-
-    return true;
 }
 
 pair<int, int> generatePosition(int pos_x, int pos_y, DIRECTION dir)
 {
     switch (dir)
     {
-    case DIRECTION::up:
+    case DIRECTION::dir_up:
         ++pos_y;
         break;
-    case DIRECTION::right:
+    case DIRECTION::dir_right:
         ++pos_x;
         break;
-    case DIRECTION::left:
+    case DIRECTION::dir_left:
         --pos_x;
         break;
-    case DIRECTION::down:
+    case DIRECTION::dir_down:
         --pos_y;
         break;
-    case DIRECTION::none:
+    case DIRECTION::dir_none:
         break;
     default:
         break;
@@ -159,34 +258,27 @@ pair<int, int> generatePosition(int pos_x, int pos_y, DIRECTION dir)
 
 int solution(vector<vector<int>> rectangle, int characterX, int characterY, int itemX, int itemY)
 {
-    int answer = 0;
-
     int max_x_pos = INT32_MIN;
-    int min_x_pos = INT32_MAX;
     int max_y_pos = INT32_MIN;
-    int min_y_pos = INT32_MAX;
 
     for (auto &rect : rectangle)
     {
+        max_x_pos = std::max(max_x_pos, rect[0]);
         max_x_pos = std::max(max_x_pos, rect[2]);
 
-        min_x_pos = std::min(min_x_pos, rect[0]);
-
+        max_y_pos = std::max(max_y_pos, rect[1]);
         max_y_pos = std::max(max_y_pos, rect[3]);
-
-        min_y_pos = std::min(min_y_pos, rect[1]);
     }
 
     // make grid
-    const size_t rowSize = max_y_pos - min_y_pos + 1;
-    const size_t columnSize = max_x_pos - min_x_pos + 1;
+    const size_t rowSize = max_y_pos * 2 + 1;
+    const size_t columnSize = max_x_pos * 2 + 1;
 
     // memory allocation
-    bool **grid = new bool *[rowSize];
-    for (size_t i = 0; i < rowSize; ++i)
+    vector<vector<bool>> grid;
+    for (size_t i = 0; i < rowSize + 3; ++i)
     {
-        grid[i] = new bool[columnSize];
-        memset(grid[i], 0, columnSize);
+        grid.push_back(vector<bool>(columnSize + 3, false));
     }
 
     // main code here
@@ -194,62 +286,33 @@ int solution(vector<vector<int>> rectangle, int characterX, int characterY, int 
     // 1. fill the grid
     for (auto &rect : rectangle)
     {
-        int rectWidth = rect[2] - rect[0] + 1;
-        int rectHeight = rect[3] - rect[1] + 1;
+        int rectWidth = (rect[2] - rect[0]) * 2;
+        int rectHeight = (rect[3] - rect[1]) * 2;
 
-        int rowPos = rect[1] - min_y_pos;
-        int colPos = rect[0] - min_x_pos;
+        int rowPos = rect[1] * 2;
+        int colPos = rect[0] * 2;
 
-        for (int i = 0; i < rectHeight; ++i)
+        for (int i = 0; i <= rectHeight; ++i)
         {
-            memset(&grid[rowPos + i][colPos], 1, rectWidth);
+            for (int j = 0; j <= rectWidth; ++j)
+            {
+                grid[rowPos + i][colPos + j] = true;
+            }
         }
     }
 
     // 2.
-    int character_x_pos = characterX - min_x_pos;
-    int character_y_pos = characterY - min_y_pos;
-    int item_x_pos = itemX - min_x_pos;
-    int item_y_pos = itemY - min_y_pos;
-
-    DIRECTION prevDirection = DIRECTION::none;
+    DIRECTION prevDirection = DIRECTION::dir_none;
     queue<pair<DIRECTION, pair<int, int>>> candidates;
     int moveCount = 0;
-    // Check up direction
-    int tempPos_x;
-    int tempPos_y;
 
-    // up
-    tempPos_x = character_x_pos;
-    tempPos_y = character_y_pos + 1;
-    if (isPositionCanBeCandidate(grid, rowSize, columnSize, tempPos_x, tempPos_y))
+    auto nextPossibleDir = calculateNextPossibleDir(grid, characterX * 2, characterY * 2);
+    for (auto &nextDir : nextPossibleDir)
     {
-        candidates.push(make_pair(DIRECTION::up, make_pair(tempPos_y, tempPos_y)));
+        candidates.push(make_pair(nextDir,
+                                  generatePosition(characterX * 2, characterY * 2, nextDir)));
     }
 
-    // right
-    tempPos_x = character_x_pos + 1;
-    tempPos_y = character_y_pos;
-    if (isPositionCanBeCandidate(grid, rowSize, columnSize, tempPos_x, tempPos_y))
-    {
-        candidates.push(make_pair(DIRECTION::right, make_pair(tempPos_y, tempPos_y)));
-    }
-
-    // down
-    tempPos_x = character_x_pos;
-    tempPos_y = character_y_pos - 1;
-    if (isPositionCanBeCandidate(grid, rowSize, columnSize, tempPos_x, tempPos_y))
-    {
-        candidates.push(make_pair(DIRECTION::down, make_pair(tempPos_y, tempPos_y)));
-    }
-
-    // left
-    tempPos_x = character_x_pos - 1;
-    tempPos_y = character_y_pos;
-    if (isPositionCanBeCandidate(grid, rowSize, columnSize, tempPos_x, tempPos_y))
-    {
-        candidates.push(make_pair(DIRECTION::left, make_pair(tempPos_y, tempPos_y)));
-    }
     int minimumMoveCount = INT32_MAX;
     while (!candidates.empty())
     {
@@ -259,70 +322,34 @@ int solution(vector<vector<int>> rectangle, int characterX, int characterY, int 
         moveCount = 1;
         prevDirection = getReverseDirection(candidate.first);
         auto currentPos = candidate.second;
-        while (!(currentPos.first == item_x_pos && currentPos.second == item_y_pos) && moveCount < minimumMoveCount)
+        while (!(currentPos.first == itemX * 2 && currentPos.second == itemY * 2))
         {
-            if (prevDirection != DIRECTION::up)
+            auto nextPossibleDirections = calculateNextPossibleDir(grid, currentPos.first, currentPos.second);
+
+            for (auto &nextPD : nextPossibleDirections)
             {
-                auto generatedPos = generatePosition(currentPos.first, currentPos.second, DIRECTION::up);                
-                if (isPositionCanBeCandidate(grid, rowSize, columnSize, generatedPos.first, generatedPos.second))
+                if (nextPD == prevDirection)
                 {
-                    prevDirection = getReverseDirection(DIRECTION::up);
-                    currentPos = generatedPos;
-                    ++moveCount;
                     continue;
                 }
-            }
-
-            if (prevDirection != DIRECTION::right)
-            {                
-                auto generatedPos = generatePosition(currentPos.first, currentPos.second, DIRECTION::right);                
-                if (isPositionCanBeCandidate(grid, rowSize, columnSize, generatedPos.first, generatedPos.second))
+                else
                 {
-                    prevDirection = getReverseDirection(DIRECTION::right);
-                    currentPos = generatedPos;
+                    currentPos = generatePosition(currentPos.first, currentPos.second, nextPD);
+                    prevDirection = getReverseDirection(nextPD);
                     ++moveCount;
-                    continue;
-                }
-            }
-
-            if (prevDirection != DIRECTION::down)
-            {
-                auto generatedPos = generatePosition(currentPos.first, currentPos.second, DIRECTION::down);                
-                if (isPositionCanBeCandidate(grid, rowSize, columnSize, generatedPos.first, generatedPos.second))
-                {
-                    prevDirection = getReverseDirection(DIRECTION::down);
-                    currentPos = generatedPos;
-                    ++moveCount;
-                    continue;
-                }
-            }
-
-            if (prevDirection != DIRECTION::left)
-            {
-                auto generatedPos = generatePosition(currentPos.first, currentPos.second, DIRECTION::left);                
-                if (isPositionCanBeCandidate(grid, rowSize, columnSize, generatedPos.first, generatedPos.second))
-                {
-                    prevDirection = getReverseDirection(DIRECTION::left);
-                    currentPos = generatedPos;
-                    ++moveCount;
-                    continue;
+                    break;
                 }
             }
         }
-        minimumMoveCount = min(moveCount, minimumMoveCount);
+        minimumMoveCount = min(moveCount / 2, minimumMoveCount);
     }
 
-    // free memory
-    for (size_t i = 0; i < rowSize; ++i)
-    {
-        delete[] grid[i];
-    }
-    delete[] grid;
-
+END:
     return minimumMoveCount;
 }
 
-struct TEST_CASE{
+struct TEST_CASE
+{
     vector<vector<int>> rectangle;
     int characterX;
     int characterY;
@@ -333,23 +360,60 @@ struct TEST_CASE{
 #include <iostream>
 int main(int argc, char **argv)
 {
-/*
-rectangle	characterX	characterY	itemX	itemY	result
-[[1,1,7,4],[3,2,5,5],[4,3,6,9],[2,6,8,8]]	1	3	7	8	17
-[[1,1,8,4],[2,2,4,9],[3,6,9,8],[6,3,7,7]]	9	7	6	1	11
-[[1,1,5,7]]	1	1	4	7	9
-[[2,1,7,5],[6,4,10,10]]	3	1	7	10	15
-[[2,2,5,5],[1,3,6,4],[3,1,4,6]]	1	4	6	3	10
-*/
-TEST_CASE t1{
-    .rectangle = {{1,1,7,4},{3,2,5,5},{4,3,6,9},{2,6,8,8}},
-    .characterX = 1,
-    .characterY = 3,
-    .itemX = 7,
-    .itemY = 8
-};
+    /*
+    rectangle	characterX	characterY	itemX	itemY	result
+    [[1,1,7,4],[3,2,5,5],[4,3,6,9],[2,6,8,8]]	1	3	7	8	17
+    [[1,1,8,4],[2,2,4,9],[3,6,9,8],[6,3,7,7]]	9	7	6	1	11
+    [[1,1,5,7]]	1	1	4	7	9
+    [[2,1,7,5],[6,4,10,10]]	3	1	7	10	15
+    [[2,2,5,5],[1,3,6,4],[3,1,4,6]]	1	4	6	3	10
+    */
+#if 0
+    TEST_CASE t1;
+    vector<int> tempV;
+    tempV.clear();
+    tempV.push_back(1);
+    tempV.push_back(1);
+    tempV.push_back(7);
+    tempV.push_back(4);
+    t1.rectangle.push_back(tempV);
+    tempV.clear();
+    tempV.push_back(3);
+    tempV.push_back(2);
+    tempV.push_back(5);
+    tempV.push_back(5);
+    t1.rectangle.push_back(tempV);
+    tempV.clear();
+    tempV.push_back(4);
+    tempV.push_back(3);
+    tempV.push_back(6);
+    tempV.push_back(9);
+    t1.rectangle.push_back(tempV);
+    tempV.clear();
+    tempV.push_back(2);
+    tempV.push_back(6);
+    tempV.push_back(8);
+    tempV.push_back(8);
+    t1.rectangle.push_back(tempV);
+    t1.characterX = 1;
+    t1.characterY = 3;
+    t1.itemX = 7;
+    t1.itemY = 8;
+#else
+    TEST_CASE t1{
+        .rectangle = {
+            {1, 1, 7, 4},
+            {3, 2, 5, 5},
+            {4, 3, 6, 9},
+            {2, 6, 8, 8},
+        },
+        .characterX = 1,
+        .characterY = 3,
+        .itemX = 7,
+        .itemY = 8};
+#endif
 
-    cout<<"Result : "<<solution(t1.rectangle,t1.characterX,t1.characterY,t1.itemX,t1.itemY)<<endl;
+    cout << "Result : " << solution(t1.rectangle, t1.characterX, t1.characterY, t1.itemX, t1.itemY) << endl;
 
     return 0;
 }
