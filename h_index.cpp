@@ -26,38 +26,90 @@ citations	return
 */
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
-#include <algorithm>
-
 int solution(vector<int> citations)
-{
-    int answer = 0;
-    
+{        
     //sort asscending order
-    sort(citations.begin(),citations.end());
+    sort(citations.begin(),citations.end(),std::greater_equal<int>());
 
-    for(size_t i = 0; i < citations.size();++i)
+    const size_t totalNumOfThesis = citations.size();    
+
+    int h_index,i;
+    for(h_index = totalNumOfThesis; h_index >= 0;--h_index)
     {
+
+        for(i = 0 ; i < totalNumOfThesis;++i)        
+        {
+            if(citations[i] - h_index < 0)
+            {
+                break;
+            }
+            
+        }
+        
+        int countOfThesisesThatCitationIsAboveCurrentHIndex = i;
+        int countOfThesisesThatCitationIsBelowCurrentHIndex = totalNumOfThesis - countOfThesisesThatCitationIsAboveCurrentHIndex;
+
+        if(countOfThesisesThatCitationIsAboveCurrentHIndex >= h_index)
+        {
+            return h_index;
+        }
         
     }
     
-    return answer;
+    return 0;
 }
 
 #include <iostream>
 
-int main(char argc, char* argv[])
+int main(int argc, char* argv[])
 {
-    vector<vector<int>> testCases{
-        {3, 0, 6, 1, 5}
+    vector<pair<vector<int>,int>> testCases{
+        {{3, 0, 6, 1, 5},3},
+        {{0, 0, 0, 0, 0},0},
+        {{0, 0, 0, 0, 1},1},
+        {{9, 9, 9, 12},4},
+        {{9, 7, 6, 2, 1},3},
+        {{10, 8, 5, 4, 3},4},
+        {{25, 8, 5, 3, 3},3},
+        {{1, 1, 5, 7, 6},3},
+        {{0},0},
+        {{0,0},0},
     };
 
+
+    int testNumber = 1;
     for(auto& testCase : testCases)
     {
-        cout<<"Result : "<<solution(testCase)<<endl;
+        cout<<testNumber<<" : Answer("<<testCase.second<<") Solution("<<solution(testCase.first)<<")"<<endl;
+        ++testNumber;
     }
     return 0;
 }
 
+/*
+Other persons solution...
+That persons answer is so simple..
+
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int solution(vector<int> citations) {
+    sort(citations.begin(), citations.end(), greater<int>());
+
+    for (int i = 0; i < citations.size(); ++i) {
+        if (citations[i] < i + 1) {
+            return i;
+        }
+    }
+
+    return citations.size();
+}
+
+*/
