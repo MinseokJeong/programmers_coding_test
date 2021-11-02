@@ -47,14 +47,35 @@ face에 해당하는 의상이 crow_mask, blue_sunglasses, smoky_makeup이므로
 
 using namespace std;
 
-int solution(vector<vector<string>> clothes) {
+int solution(vector<vector<string>> clothes)
+{
     int answer = 0;
     return answer;
 }
 
 #include <iostream>
-
-int main(int argc, char** argv)
+struct TEST_CASE
 {
+    vector<vector<string>> clothes;
+    int answer;
+};
+int main(int argc, char **argv)
+{
+    TEST_CASE t1{
+        .clothes = {
+            {"yellowhat", "headgear"},
+            {"bluesunglasses", "eyewear"},
+            {"green_turban", "headgear"},
+        },
+        .answer = 5};
+    TEST_CASE t2{
+        .clothes = {
+            {"crowmask", "face"},
+            {"bluesunglasses", "face"},
+            {"smoky_makeup", "face"},
+        },
+        .answer = 5};
+    cout<<"t1 : answer("<<t1.answer<<"), solution("<<solution(t1.clothes)<<")"<<endl;
+    cout<<"t2 : answer("<<t2.answer<<"), solution("<<solution(t2.clothes)<<")"<<endl;
     return 0;
 }
