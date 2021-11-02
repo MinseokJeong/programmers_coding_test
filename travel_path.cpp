@@ -50,7 +50,7 @@ bool isTicketPossibleOrder(Ticket &first, Ticket &second)
     {
         return true;
     }
-    ~return false;
+    return false;
 }
 
 vector<string> solution(vector<vector<string>> tickets)
