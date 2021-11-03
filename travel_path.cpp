@@ -28,6 +28,9 @@ tickets	return
 
 #include <string>
 #include <vector>
+#include <queue>
+#include <stack>
+#include <list>
 
 using namespace std;
 
@@ -42,6 +45,12 @@ public:
         origin_ariport = org;
         destination_airport = dst;
     }
+
+    Ticket()
+    {
+        origin_ariport = nullptr;
+        destination_airport = nullptr;
+    }
 };
 
 bool isTicketPossibleOrder(Ticket &first, Ticket &second)
@@ -53,24 +62,171 @@ bool isTicketPossibleOrder(Ticket &first, Ticket &second)
     return false;
 }
 
+void findPath(list<Ticket *> &selected, list<Ticket *> &selectionPool, vector<string> &path)
+{
+    size_t selectionPoolSize = selectionPool.size();
+
+    if (selectionPoolSize == 0)
+    {
+        if (path.empty())
+        {
+            for (auto it = selected.begin(); it != selected.end(); ++it)
+            {
+                path.push_back(*((*it)->origin_ariport));
+            }
+            path.push_back(*(selected.back()->destination_airport));
+        }
+        else
+        {
+            size_t i = 0;
+            bool changeThePathToNew = false;
+            bool midBreakFlag = false;
+
+            for (auto it = selected.begin(); it != selected.end() && !changeThePathToNew; ++it)
+            {
+                string &tempStr = (*((*it)->origin_ariport));
+
+                for (int j = 0; j < 3; j++)
+                {
+                    if (path[i].at(j) > tempStr.at(j))
+                    {
+                        changeThePathToNew = true;
+                        break;
+                    }
+                    else if (path[i].at(j) < tempStr.at(j))
+                    {
+                        midBreakFlag = true;
+                        break;
+                    }
+                }
+
+                if (midBreakFlag)
+                {
+                    break;
+                }
+                ++i;
+            }
+/*
+            string &tempStr = (*(selected.back()->destination_airport));
+            for (int j = 0; j < 3; j++)
+            {
+                if (path.back().at(j) > tempStr.at(j))
+                {
+                    changeThePathToNew = true;
+                    break;
+                }
+                break;                
+            }
+*/
+            if (changeThePathToNew)
+            {
+                path.clear();
+                for (auto it = selected.begin(); it != selected.end(); ++it)
+                {
+                    path.push_back(*((*it)->origin_ariport));
+                }
+                path.push_back(*(selected.back()->destination_airport));
+            }
+        }
+        return;
+    }
+
+    if (selected.size() == 0)
+    {
+        for (size_t i = 0; i < selectionPoolSize; ++i)
+        {
+            auto frontElement = selectionPool.front();
+            selectionPool.pop_front();
+
+            if (frontElement->origin_ariport->compare("ICN") == 0)
+            {
+                selected.push_back(frontElement);
+                findPath(selected, selectionPool, path);
+                selected.pop_back();
+            }
+
+            selectionPool.push_back(frontElement);
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < selectionPoolSize; ++i)
+        {
+            auto &lastSelectedTicket = selected.back();
+            auto selectionPoolFrontElement = selectionPool.front();
+            selectionPool.pop_front();
+            if (isTicketPossibleOrder(*lastSelectedTicket, *selectionPoolFrontElement))
+            {
+                selected.emplace_back(selectionPoolFrontElement);
+                findPath(selected, selectionPool, path);
+                selected.pop_back();
+            }
+            selectionPool.push_back(selectionPoolFrontElement);
+        }
+    }
+}
+
 vector<string> solution(vector<vector<string>> tickets)
 {
-    vector<Ticket> ticketVector;
-    ticketVector.reserve(tickets.size());
+    list<Ticket *> ticketsToList;
+    list<Ticket *> selectedTicket;
+    vector<string> answer;
+    Ticket *pTickets = new Ticket[tickets.size()];
+    size_t idx = 0;
 
     // First make the ticket
     for (auto &ticket : tickets)
     {
         // To reduce the contruct time
-        ticketVector.emplace_back(&ticket[0], &ticket[1]);
+        pTickets[idx].origin_ariport = &ticket[0];
+        pTickets[idx].destination_airport = &ticket[1];
+        ticketsToList.push_back(&pTickets[idx]);
+        idx++;
     }
 
-    return vector<string>();
+    findPath(selectedTicket, ticketsToList, answer);
+
+    delete[] pTickets;
+
+    return answer;
 }
 
 #include <iostream>
+struct TEST_CASE
+{
+    vector<vector<string>> tickets;
+    vector<string> answer;
+};
+
+void printVector(vector<string> v)
+{
+    for (auto &i : v)
+    {
+        cout << i << " ";
+    }
+}
+
 int main(int argc, char *argv[])
 {
+    TEST_CASE t1{
+        .tickets = {{"ICN", "JFK"}, {"HND", "IAD"}, {"JFK", "HND"}},
+        .answer = {"ICN", "JFK", "HND", "IAD"}};
+
+    TEST_CASE t2{
+        .tickets = {{"ICN", "SFO"}, {"ICN", "ATL"}, {"SFO", "ATL"}, {"ATL", "ICN"}, {"ATL", "SFO"}},
+        .answer = {"ICN", "ATL", "ICN", "SFO", "ATL", "SFO"}};
+
+    cout << "t1 : answer -> ";
+    printVector(t1.answer);
+    cout << ", solution -> ";
+    printVector(solution(t1.tickets));
+    cout << endl;
+
+    cout << "t2 : answer -> ";
+    printVector(t2.answer);
+    cout << ", solution -> ";
+    printVector(solution(t2.tickets));
+    cout << endl;
 
     return 0;
 }
