@@ -41,7 +41,11 @@ face에 해당하는 의상이 crow_mask, blue_sunglasses, smoky_makeup이므로
 출처
 
 Start Time : 2021.11.02 22:04
-End Time : 
+End Time : 2021.11.02 22:51
+
+Don't think it's hard,,,
+it just problem of the combination
+Need to think about
 */
 
 #include <string>
